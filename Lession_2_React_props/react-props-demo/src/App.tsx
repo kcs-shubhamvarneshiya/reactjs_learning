@@ -5,7 +5,7 @@ import Counter from "./components/Counter";
 import type { UserCardProps } from "./types/UserCardTypes";
 import type { AdminCardProps } from "./types/AdminCardTypes";
 import React from "react";
-import Search from "./components/search";
+import Search from "./components/Search";
 
 const userCardData: UserCardProps[] = [
   {
