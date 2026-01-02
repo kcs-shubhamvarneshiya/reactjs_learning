@@ -1,6 +1,6 @@
-import app from "./app.js";
-import { connectDB } from "./Utils/Database/db.js";
-import { PORT, SERVER_URL } from "./Utils/Secrates/enviorment.js";
+import app from "./app";
+import { connectDB } from "./Utils/Database/db";
+import { PORT, SERVER_URL } from "./Utils/Secrates/enviorment";
 
 (async () => {
   await connectDB();

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { MONGO_URI } from "../Secrates/enviorment.js";
+import { MONGO_URI } from "../Secrates/enviorment";
 
 export const connectDB = async () => {
   try {
