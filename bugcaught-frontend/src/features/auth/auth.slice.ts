@@ -7,8 +7,6 @@ const initialState: AuthState = {
   isAuthenticated: false,
   user: null,
   token: null,
-  loading: false,
-  error: null,
 };
 
 const authSlice = createSlice({
@@ -21,38 +19,23 @@ const authSlice = createSlice({
       state.token = null;
       clearAuth();
     },
-    clearError(state) {
-      state.error = null;
-    },
     hydrateAuth(_, action) {
       return action.payload;
     },
   },
   extraReducers: (builder) => {
     builder
-      // LOGIN
-      .addCase(login.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
       .addCase(login.fulfilled, (state, action) => {
-        state.loading = false;
         state.isAuthenticated = true;
         state.user = action.payload.user;
         state.token = action.payload.token;
         saveAuth(state);
       })
-      .addCase(login.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-
-      // REGISTER
-      .addCase(register.rejected, (state, action) => {
-        state.error = action.payload as string;
+      .addCase(register.fulfilled, (state) => {
+        // Admin registers employees – no auto login
       });
   },
 });
 
-export const { logout, clearError, hydrateAuth } = authSlice.actions;
+export const { logout,  } = authSlice.actions;
 export default authSlice.reducer;

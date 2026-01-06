@@ -1,86 +1,66 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../../app/hooks";
-import { login } from "../../app/slices/authSlice";
-import { mockUsers } from "../../mock/user";
+import { useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { login } from "./auth.thunks";
+import { Navigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { clearError } from "../../app/slices/authSlice";
 
 const Login = () => {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
+  const { isAuthenticated, user, error, loading } = useAppSelector(
+    (state) => state.auth
+  );
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const user = mockUsers.find(
-      (u) => u.email === email && u.password === password
-    );
-
-    if (!user) {
-      setError("Invalid email or password");
-      return;
+  // Show error toast
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      dispatch(clearError());
     }
+  }, [error, dispatch]);
 
-    dispatch(
-      login({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        password: user.password,
-      })
-    );
+  if (isAuthenticated && user?.role === "ADMIN") {
+    return <Navigate to="/admin/dashboard" />;
+  }
 
-    // Role-based redirect
-    if (user.role === "ADMIN") {
-      navigate("/admin/dashboard");
-    } else {
-      navigate("/employee/dashboard");
-    }
-  };
+  if (isAuthenticated && user?.role === "EMPLOYEE") {
+    return <Navigate to="/employee/dashboard" />;
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-lg shadow-md w-96"
+        onSubmit={(e) => {
+          e.preventDefault();
+          dispatch(login({ email, password }));
+        }}
+        className="bg-white p-6 rounded-xl shadow w-96"
       >
-        <h2 className="text-2xl font-bold mb-6 text-center">BugCaught Login</h2>
+        <h2 className="text-xl font-semibold mb-4">Login</h2>
 
-        {error && (
-          <p className="text-red-600 text-sm mb-3 text-center">{error}</p>
-        )}
+        <input
+          className="w-full mb-3 p-2 border rounded"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Email</label>
-          <input
-            type="email"
-            className="w-full border px-3 py-2 rounded"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="mb-6">
-          <label className="block text-sm font-medium mb-1">Password</label>
-          <input
-            type="password"
-            className="w-full border px-3 py-2 rounded"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+        <input
+          type="password"
+          className="w-full mb-3 p-2 border rounded"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
         <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          disabled={loading}
+          className="w-full bg-primary py-2 rounded font-medium disabled:opacity-50"
         >
-          Login
+          {loading ? "Logging in..." : "Login"}
         </button>
       </form>
     </div>
